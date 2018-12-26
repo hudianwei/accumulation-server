@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.accumulation.dao.UserDao">
+    <resultMap id="userMap" type="com.accumulation.model.UserEntity">
+        <id column="id" property="id"/>
+        <result column="login_name" property="loginName"/>
+        <result column="name" property="name"/>
+        <result column="password" property="password"/>
+        <result column="userType" property="userType"/>
+        <result column="email" property="email"/>
+        <result column="headimg" property="headimg"/>
+        <result column="url" property="url"/>
+        <result column="createTime" property="createTime"/>
+    </resultMap>
+    <!--获取user列表-->
+    <select id="usersList" resultMap="userMap">
+        <![CDATA[select * from sys_user ]]]>
+        <where>
+            <if test="loginName!=null and loginName!=''">
+                login_name=#{loginName}
+            </if>
+        </where>
+        <![CDATA[order by id desc ]]>
+        <if test="pageSize != null and start != null ">
+            limit #{start},#{pageSize}
+        </if>
+    </select>
+    <!--获取列表总量-->
+    <select id="userSize" resultType="Integer">
+        <![CDATA[select count(*) from sys_user]]>
+        <where>
+            <if test="loginName !=null and loginName !=''">
+                login_name=#{loginName}
+            </if>
+        </where>
+    </select>
+
+    <select id="getUserEntityById" resultMap="userMap">
+        SELECT * FROM sys_user
+        <where>
+            id = #{id}
+        </where>
+    </select>
+    <select id="getUserEntityByLoginName" resultMap="userMap">
+        select * from sys_user
+        <where>
+            login_name=#{loginName}
+        </where>
+    </select>
+    <delete id="deleteUsers">
+        delete from sys_user
+        <where>
+            <if test="groupId !=null">
+                id in
+                <foreach collection="groupId" item="item" index="index" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+    </delete>
+    <!-- <select id="getUserEntityById" resultType="UserEntity" parameterType="long">
+         SELECT * FROM sys_user WHERE id = #{id}
+     </select>-->
+    <!--新建用户信息-->
+    <insert id="insertUser" parameterType="com.accumulation.model.UserEntity">
+        <selectKey keyProperty="id" resultType="java.lang.Integer" order="AFTER">
+            select LAST_INSERT_ID()
+        </selectKey>
+        insert into sys_user(login_name,email,usertype,headimg,url,create_time)
+        values
+        (#{loginName},#{email},#{userType},#{headimg},#{url},#{createTime})
+    </insert>
+</mapper>
